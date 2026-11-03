@@ -46,8 +46,8 @@
  line-height:1.22;opacity:0;visibility:hidden;filter:blur(18px);transform:translateY(30px) scale(.89);
  transition:opacity .85s cubic-bezier(.2,1,.3,1), transform .85s cubic-bezier(.2,1,.3,1),filter .85s,visibility 0s .85s;
  animation:none!important;text-shadow:0 0 35px #ff92ce52}
-#s1 .matrix-text .line:nth-child(2){font-size:.9em}
-#s1 .matrix-text .line:nth-child(3){font-size:.76em;letter-spacing:-.05em}
+#s1 .matrix-text .line:nth-child(2){font-size:1em}
+#s1 .matrix-text .line:nth-child(3){font-size:1em;letter-spacing:-.05em}
 #s1 .matrix-text .line.revealed{opacity:1;visibility:visible;filter:blur(0);transform:translateY(0) scale(1);
  transition:opacity .85s cubic-bezier(.2,1,.3,1),transform .85s cubic-bezier(.2,1,.3,1),filter .85s,visibility 0s}
 #s1 .matrix-text .line.pink{color:#ff7abc}
@@ -67,9 +67,9 @@
 @keyframes love-explode{0%{opacity:0;transform:scale(0) rotate(-14deg)}35%{opacity:1;transform:scale(1.19) rotate(5deg)}60%{transform:scale(.93) rotate(-2deg)}78%{transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
 @keyframes love-note-in{from{opacity:0;transform:translateY(25px) scale(.75)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:600px){
- #s1 .matrix-text{font-size:clamp(50px,14.2vw,86px);letter-spacing:-.07em}
- #s1 .matrix-text .line:nth-child(2){font-size:.94em}
- #s1 .matrix-text .line:nth-child(3){font-size:.80em}
+ #s1 .matrix-text{font-size:clamp(68px,18vw,100px);letter-spacing:-.07em}
+ #s1 .matrix-text .line:nth-child(2){font-size:1em}
+ #s1 .matrix-text .line:nth-child(3){font-size:1em}
  #s1 .matrix-bottom{font-size:clamp(10px,2.75vw,13px);letter-spacing:.11em;margin-top:25px}
  .love-big{width:min(79vw,340px)}
 }
@@ -214,10 +214,18 @@ function matrixSequence(){
  });
  // Reduce long names only as much as needed to fit the actual screen.
  const fit=()=>{
-  rows.forEach((r,i)=>{r.style.fontSize='';let base=parseFloat(getComputedStyle(r).fontSize);
-   while(r.scrollWidth>m.clientWidth-6 && base>20){
-    base-=2;r.style.fontSize=base+'px';
-   }
+  const available=Math.max(240,m.clientWidth-12);
+  const isPhone=window.innerWidth<=600;
+  const intended=isPhone?[88,67,58]:[154,142,112];
+  rows.forEach((r,i)=>{
+   r.style.fontSize=intended[i]+'px';
+   const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+   const cs=getComputedStyle(r);ctx.font=cs.fontWeight+' '+intended[i]+'px '+cs.fontFamily;
+   const measured=ctx.measureText(r.textContent).width;
+   const spacing=parseFloat(cs.letterSpacing)||0;
+   const actual=measured+spacing*Math.max(0,r.textContent.length-1);
+   const safe=Math.min(intended[i],intended[i]*available/Math.max(actual,1));
+   r.style.fontSize=Math.max(24,Math.floor(safe))+'px';
   });
  };
  fit();
